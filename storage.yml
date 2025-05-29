@@ -1,0 +1,45 @@
+networks:
+  appnet:
+    external: true
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    restart: always
+    ports:
+      - 8383:80
+    environment:
+      - MYSQL_PASSWORD=${SQL_PWD}
+      - MYSQL_DATABASE=${SQL_DB}
+      - MYSQL_USER=${SQL_USER}
+      - MYSQL_HOST=db
+      - OBJECTSTORE_S3_BUCKET=${OBJECTSTORE_S3_BUCKET}
+      - OBJECTSTORE_S3_KEY=${OBJECTSTORE_S3_KEY}
+      - OBJECTSTORE_S3_SECRET=${OBJECTSTORE_S3_SECRET}
+      - OBJECTSTORE_S3_HOST=${OBJECTSTORE_S3_HOST}
+      - OBJECTSTORE_S3_REGION=${OBJECTSTORE_S3_REGION}
+      - OBJECTSTORE_S3_USEPATH_STYLE=true
+      - OBJECTSTORE_S3_AUTOCREATE=true
+    depends_on:
+      - db
+    volumes:
+      - ${STORAGEPATH}/nextcloud-data:/var/www/html/data
+      - ${STORAGEPATH}/nextcloud-config:/var/www/html/config
+      - ${STORAGEPATH}/nextcloud-custom_apps:/var/www/html/custom_apps
+      - ${STORAGEPATH}/nextcloud-themes:/var/www/html/themes
+    networks:
+      - appnet
+
+
+  db:
+    image: mariadb:lts
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${SQL_ROOT_PWD}
+      - MYSQL_PASSWORD=${SQL_PWD}
+      - MYSQL_DATABASE=${SQL_DB}
+      - MYSQL_USER=${SQL_USER}
+    volumes:
+      - ${STORAGEPATH}/db:/var/lib/mysql
+    networks:
+      - appnet

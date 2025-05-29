@@ -1,0 +1,81 @@
+networks:
+  appnet:
+    external: true
+
+services:
+  # ─── Jellyfin ──────────────────────────────────────────────
+  jellyfin:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin
+    networks:
+      - appnet
+    ports:
+      - "8096:8096"
+    volumes:
+      - ${MEDIAPATH}/Jellyfin/config:/config
+      - ${MEDIAPATH}/Radarr/movies:/data/Movies
+      - ${MEDIAPATH}/Sonarr/tvshows:/data/TVShows
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8096/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ─── Internet Radio Manager ────────────────────────────────
+  azuracast:
+    image: ghcr.io/azuracast/azuracast:latest
+    container_name: azuracast
+    networks:
+      - appnet
+    ports:
+      - "9080:80"
+      - "8443:443"
+      - "2222:2022"
+      - "8800:8000"
+      - "8805:8005"
+    environment:
+      - APPLICATION_ENV=production
+      - AUTO_ASSIGN_PORT_MIN=8000
+      - AUTO_ASSIGN_PORT_MAX=8499
+#      - MARIADB_RANDOM_ROOT_PASSWORD=no           # use a known root password
+#      - MARIADB_ROOT_PASSWORD=${AC_PWD}           # root@localhost password
+#      - MARIADB_DATABASE=azuracast                # creates database “azuracast”
+#      - MARIADB_USER=azuracast                    # creates user azuracast@localhost
+#      - MARIADB_PASSWORD=${AC_PWD}
+      - MYSQL_HOST=mariadb
+      - MYSQL_PORT=3306
+      - MYSQL_USER=azuracast
+      - MYSQL_PASSWORD=azur4c457
+      - MYSQL_DATABASE=azuracast
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      
+    volumes:
+      - ${MEDIAPATH}/azuracast/config:/var/azuracast/config
+      - ${MEDIAPATH}/azuracast/stations:/var/azuracast/stations
+      - ${MEDIAPATH}/azuracast/playlists:/var/azuracast/playlists
+      - ${MEDIAPATH}/azuracast/logs:/var/azuracast/logs
+    restart: unless-stopped
+
+
+
+  # ─── File Browser ───────────────────────────────────────────
+  filebrowser:
+    image: filebrowser/filebrowser:s6
+    container_name: filebrowser
+    networks:
+      - appnet
+    ports:
+      - "8081:80"  # expose File Browser UI on host port 8081
+    volumes:
+      - ${MEDIAPATH}:/srv             # root of media library
+      - ${MEDIAPATH}/filebrowser/data:/data   # File Browser user data
+      - ${MEDIAPATH}/filebrowser/config:/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -f http://localhost:80/health | grep -q '\"status\":\"OK\"' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
