@@ -25,7 +25,7 @@ services:
 
   # ─── Internet Radio Manager ────────────────────────────────
   azuracast:
-    image: ghcr.io/azuracast/azuracast:latest
+    image: ghcr.io/azuracast/azuracast:stable
     container_name: azuracast
     networks:
       - appnet
@@ -39,17 +39,13 @@ services:
       - APPLICATION_ENV=production
       - AUTO_ASSIGN_PORT_MIN=8000
       - AUTO_ASSIGN_PORT_MAX=8499
-#      - MARIADB_RANDOM_ROOT_PASSWORD=no           # use a known root password
-#      - MARIADB_ROOT_PASSWORD=${AC_PWD}           # root@localhost password
-#      - MARIADB_DATABASE=azuracast                # creates database “azuracast”
-#      - MARIADB_USER=azuracast                    # creates user azuracast@localhost
-#      - MARIADB_PASSWORD=${AC_PWD}
-      - MYSQL_HOST=mariadb
-      - MYSQL_PORT=3306
-      - MYSQL_USER=azuracast
-      - MYSQL_PASSWORD=azur4c457
-      - MYSQL_DATABASE=azuracast
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=1
+    volumes:
+      - ${MEDIAPATH}/azuracast/config:/var/azuracast/config
+      - ${MEDIAPATH}/azuracast/stations:/var/azuracast/stations
+      - ${MEDIAPATH}/azuracast/playlists:/var/azuracast/playlists
+      - ${MEDIAPATH}/azuracast/logs:/var/azuracast/logs
+      - ${MEDIAPATH}/azuracast/db_data:/var/lib/mysql
       
     volumes:
       - ${MEDIAPATH}/azuracast/config:/var/azuracast/config
@@ -57,8 +53,6 @@ services:
       - ${MEDIAPATH}/azuracast/playlists:/var/azuracast/playlists
       - ${MEDIAPATH}/azuracast/logs:/var/azuracast/logs
     restart: unless-stopped
-
-
 
   # ─── File Browser ───────────────────────────────────────────
   filebrowser:
