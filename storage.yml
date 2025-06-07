@@ -5,6 +5,7 @@ networks:
 services:
   nextcloud:
     image: nextcloud:latest
+    container_name: nextcloud
     restart: always
     ports:
       - 8383:80
@@ -20,6 +21,9 @@ services:
       - OBJECTSTORE_S3_REGION=${OBJECTSTORE_S3_REGION}
       - OBJECTSTORE_S3_USEPATH_STYLE=true
       - OBJECTSTORE_S3_AUTOCREATE=true
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
     depends_on:
       - db
     volumes:
@@ -30,15 +34,18 @@ services:
     networks:
       - appnet
 
-
   db:
     image: mariadb:lts
+    container_name: nextcloud_db
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=${SQL_ROOT_PWD}
       - MYSQL_PASSWORD=${SQL_PWD}
       - MYSQL_DATABASE=${SQL_DB}
       - MYSQL_USER=${SQL_USER}
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${STORAGEPATH}/db:/var/lib/mysql
     networks:

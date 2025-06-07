@@ -15,9 +15,10 @@ services:
     networks:
       - appnet
     ports:
-      - 8080:8080   # qBittorrent Web UI
-      - 6881:6881   # qBittorrent torrenting
-      - 9696:9696   # Prowlarr
+      - 8080:8080 # qBittorrent Web UI
+      - 6881:6881 # qBittorrent torrenting
+      - 9696:9696 # Prowlarr
+      - 8191:8191 # flaresolverr
     volumes:
       - ${ARRPATH}/gluetun:/gluetun
     environment:
@@ -28,6 +29,7 @@ services:
       - UPDATER_PERIOD=24h
       - SERVER_CITIES=Stockholm
       - FIREWALL_OUTBOUND_SUBNETS=172.21.0.0/24
+      - TZ=${TZ}
     healthcheck:
       test: ping -c 1 www.google.com || exit 1
       interval: 60s
@@ -44,6 +46,10 @@ services:
       - ${ARRPATH}/Prowlarr/backup:/data/Backup
       - ${ARRPATH}/Downloads:/downloads
     restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
     depends_on:
       - gluetun
     network_mode: service:gluetun
@@ -62,6 +68,10 @@ services:
       - ${ARRPATH}/Sonarr/tvshows:/data/tvshows
       - ${ARRPATH}/Downloads:/downloads
     restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
 
   # ─── Radarr ────────────────────────────────────────────────
   radarr:
@@ -77,6 +87,10 @@ services:
       - ${ARRPATH}/Radarr/backup:/data/Backup
       - ${ARRPATH}/Downloads:/downloads
     restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
 
   # ─── Homarr ────────────────────────────────────────────────
   homarr:
@@ -91,8 +105,8 @@ services:
       - ${ARRPATH}/Homarr/icons:/app/public/icons
       - ${ARRPATH}/Homarr/data:/data
     restart: unless-stopped
-
-
+    environment:
+      - TZ=${TZ}
 
   # ─── qBittorrent ───────────────────────────────────────────
   qbittorrent:
@@ -104,10 +118,21 @@ services:
     environment:
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}s
     restart: unless-stopped
     depends_on:
-      - gluetun
+      gluetun:
+        condition: service_healthy
+        restart: true
     network_mode: service:gluetun
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 20s
+      timeout: 10s
 
   # ─── Bazarr ────────────────────────────────────────────────
   bazarr:
@@ -121,6 +146,10 @@ services:
       - ${ARRPATH}/bazarr:/config
       - ${ARRPATH}/bazarr/data:/data
     restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
 
   # ─── Jellyseerr ────────────────────────────────────────────
   jellyseerr:
@@ -132,5 +161,22 @@ services:
       - 5055:5055
     volumes:
       - ${ARRPATH}/jellyseerr:/app/config
-
     restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+  # ─── Flaresolverr ────────────────────────────────────────────
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    restart: unless-stopped
+    network_mode: service:gluetun

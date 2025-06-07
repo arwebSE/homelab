@@ -13,8 +13,8 @@ services:
       - "8096:8096"
     volumes:
       - ${MEDIAPATH}/Jellyfin/config:/config
-      - ${MEDIAPATH}/Radarr/movies:/data/Movies
-      - ${MEDIAPATH}/Sonarr/tvshows:/data/TVShows
+      - ${ARRPATH}/Radarr/movies:/data/Movies
+      - ${ARRPATH}/Sonarr/tvshows:/data/TVShows
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8096/health || exit 1"]
@@ -22,6 +22,10 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
 
   # ─── Internet Radio Manager ────────────────────────────────
   azuracast:
@@ -40,36 +44,42 @@ services:
       - AUTO_ASSIGN_PORT_MIN=8000
       - AUTO_ASSIGN_PORT_MAX=8499
       - MYSQL_RANDOM_ROOT_PASSWORD=1
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${MEDIAPATH}/azuracast/config:/var/azuracast/config
       - ${MEDIAPATH}/azuracast/stations:/var/azuracast/stations
       - ${MEDIAPATH}/azuracast/playlists:/var/azuracast/playlists
       - ${MEDIAPATH}/azuracast/logs:/var/azuracast/logs
       - ${MEDIAPATH}/azuracast/db_data:/var/lib/mysql
-      
-    volumes:
-      - ${MEDIAPATH}/azuracast/config:/var/azuracast/config
-      - ${MEDIAPATH}/azuracast/stations:/var/azuracast/stations
-      - ${MEDIAPATH}/azuracast/playlists:/var/azuracast/playlists
-      - ${MEDIAPATH}/azuracast/logs:/var/azuracast/logs
     restart: unless-stopped
 
   # ─── File Browser ───────────────────────────────────────────
   filebrowser:
-    image: filebrowser/filebrowser:s6
+    image: filebrowser/filebrowser:latest
     container_name: filebrowser
     networks:
       - appnet
     ports:
-      - "8081:80"  # expose File Browser UI on host port 8081
+      - "8081:80" # expose File Browser UI on host port 8081
     volumes:
-      - ${MEDIAPATH}:/srv             # root of media library
-      - ${MEDIAPATH}/filebrowser/data:/data   # File Browser user data
+      - ${ROOTPATH}:/srv # root of media library
+      - ${MEDIAPATH}/filebrowser/data:/data # File Browser user data
       - ${MEDIAPATH}/filebrowser/config:/config
+      - ${MEDIAPATH}/filebrowser/db/filebrowser.db:/database/filebrowser.db
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -f http://localhost:80/health | grep -q '\"status\":\"OK\"' || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          'curl -s -f http://localhost:80/health | grep -q ''"status":"OK"'' || exit 1',
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
