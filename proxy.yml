@@ -20,6 +20,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
 
+
   # ─── Local DNS for arweb.dev ───────────────────────────────
   dnsmasq:
     image: dockurr/dnsmasq:latest
@@ -31,11 +32,15 @@ services:
       - "53:53/udp"
       - "53:53/tcp"
     environment:
-      - DNS1=1.1.1.1 # Cloudflare primary
-      - DNS2=1.0.0.1 # Cloudflare secondary
+      - DNS1=1.1.1.1        # Cloudflare primary
+      - DNS2=1.0.0.1        # Cloudflare secondary
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
     volumes:
       - ${PROXYPATH}/dnsmasq.d:/etc/dnsmasq.d:ro
-    # todo: add healthcheck
+#    healthcheck:
+#      test: ["CMD", "dnsmasq", "--test"]
+#      interval: 30s
+#      timeout: 5s
+#      retries: 3
