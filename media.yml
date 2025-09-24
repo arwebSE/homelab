@@ -62,19 +62,15 @@ services:
     networks:
       - appnet
     ports:
-      - "8081:80" # expose File Browser UI on host port 8081
+      - "8081:80"  # expose File Browser UI on host port 8081
     volumes:
-      - ${ROOTPATH}:/srv # root of media library
-      - ${MEDIAPATH}/filebrowser/data:/data # File Browser user data
+      - ${ROOTPATH}:/srv             # root of media library
+      - ${MEDIAPATH}/filebrowser/data:/data   # File Browser user data
       - ${MEDIAPATH}/filebrowser/config:/config
       - ${MEDIAPATH}/filebrowser/db/filebrowser.db:/database/filebrowser.db
     restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          'curl -s -f http://localhost:80/health | grep -q ''"status":"OK"'' || exit 1',
-        ]
+      test: ["CMD-SHELL", "curl -s -f http://localhost:80/health | grep -q '\"status\":\"OK\"' || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
