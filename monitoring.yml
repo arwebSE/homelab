@@ -1,0 +1,39 @@
+networks:
+  appnet:
+    external: true
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    extra_hosts:
+      - "dockerlab:host-gateway"
+    volumes:
+      - ${MONITORINGPATH}/prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3003:3000
+    restart: unless-stopped
+    volumes:
+      - ${MONITORINGPATH}/grafana:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+
+volumes:
+  prom_data:
+  grafana_data:
