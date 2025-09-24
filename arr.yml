@@ -15,10 +15,10 @@ services:
     networks:
       - appnet
     ports:
-      - 8080:8080 # qBittorrent Web UI
-      - 6881:6881 # qBittorrent torrenting
-      - 9696:9696 # Prowlarr
-      - 8191:8191 # flaresolverr
+      - 8080:8080   # qBittorrent Web UI
+      - 6881:6881   # qBittorrent torrenting
+      - 9696:9696   # Prowlarr
+      - 8191:8191   # flaresolverr
     volumes:
       - ${ARRPATH}/gluetun:/gluetun
     environment:
@@ -72,7 +72,7 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
-
+      
   # ─── Radarr ────────────────────────────────────────────────
   radarr:
     image: linuxserver/radarr:latest
@@ -91,7 +91,7 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
-
+      
   # ─── Homarr ────────────────────────────────────────────────
   homarr:
     image: ghcr.io/ajnart/homarr:latest
@@ -107,7 +107,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ}
-
+      
   # ─── qBittorrent ───────────────────────────────────────────
   qbittorrent:
     image: linuxserver/qbittorrent:latest
@@ -120,7 +120,7 @@ services:
       - TORRENTING_PORT=6881
       - TZ=${TZ}
       - PUID=${PUID}
-      - PGID=${PGID}s
+      - PGID=${PGID}
     restart: unless-stopped
     depends_on:
       gluetun:
@@ -133,7 +133,7 @@ services:
       retries: 3
       start_period: 20s
       timeout: 10s
-
+      
   # ─── Bazarr ────────────────────────────────────────────────
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -144,13 +144,15 @@ services:
       - 6767:6767
     volumes:
       - ${ARRPATH}/bazarr:/config
+      - ${ARRPATH}/Radarr/movies:/movies
+      - ${ARRPATH}/Sonarr/tvshows:/tv
       - ${ARRPATH}/bazarr/data:/data
     restart: unless-stopped
     environment:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
-
+      
   # ─── Jellyseerr ────────────────────────────────────────────
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
@@ -166,8 +168,8 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
-
-  # ─── Flaresolverr ────────────────────────────────────────────
+      
+ # ─── Flaresolverr ────────────────────────────────────────────
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
