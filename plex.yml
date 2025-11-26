@@ -1,0 +1,24 @@
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    env_file: stack.env
+    environment:
+      - VERSION=docker
+    ports:
+      - 32400:32400
+    volumes:
+      - ${DOCKER}/plex:/config
+      - ${TANK}:/data
+    restart: unless-stopped
+
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    env_file: stack.env
+    volumes:
+      - ${DOCKER}/overseer/config:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
