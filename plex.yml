@@ -2,7 +2,7 @@ services:
   plex:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
-    network_mode: host
+    network_mode: host # recommended by Plex
     env_file: stack.env
     environment:
       - VERSION=docker
