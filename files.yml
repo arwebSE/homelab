@@ -1,3 +1,4 @@
+
 services:
   filebrowser:
       image: filebrowser/filebrowser:latest
@@ -10,10 +11,4 @@ services:
         - ${DOCKER}/filebrowser/config:/config
         - ${DOCKER}/filebrowser/db/filebrowser.db:/database/filebrowser.db
       restart: unless-stopped
-      healthcheck:
-        test: ["CMD-SHELL", "curl -s -f http://localhost:80/health | grep -q '\"status\":\"OK\"' || exit 1"]
-        interval: 30s
-        timeout: 5s
-        retries: 3
-        start_period: 10s
       env_file: stack.env
