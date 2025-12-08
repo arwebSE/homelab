@@ -1,0 +1,50 @@
+mqtt:
+  enabled: false
+ui:
+  time_format: 24hour
+ffmpeg:
+  hwaccel_args: auto
+
+tls:
+  enabled: false
+
+auth:
+  enabled: true
+  # reset_admin_password: true
+timestamp_style:
+  position: tl
+  format: '%d/%m/%Y %H:%M:%S'
+  thickness: 2
+  effect: solid
+
+cameras:
+  micam:
+    ffmpeg:
+      inputs:
+        - path: '{FRIGATE_RTSP_URL}'
+          roles:
+            - detect
+            - record
+    record:
+      enabled: true
+      retain:
+        days: 1
+        mode: all
+      detections:
+        pre_capture: 30
+        post_capture: 30
+        retain:
+          days: 30
+          mode: all
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+      fps: 5
+    motion:
+      mask:
+        - 0.029,0.21,0.038,0.205,0.168,0.2,0.172,0.05,0.362,0.051,0.365,0,0.001,0.003,0.002,0.047,0.093,0.059,0.03,0.21
+        - 0.724,0.262,0.738,0.083,0.999,0.177,1,0.356
+version: 0.16-0
+detect:
+  enabled: true
