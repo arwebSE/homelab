@@ -20,8 +20,8 @@ services:
       - 9696:9696   # Prowlarr
       - 8191:8191   # flaresolverr
     volumes:
-      - ${ARRPATH}/gluetun:/gluetun
-    env_file: stack.env
+      - /home/mi/docker/arr/gluetun:/gluetun
+    env_file: arr.env
     healthcheck:
       test: ping -c 1 www.google.com || exit 1
       interval: 60s
@@ -34,13 +34,18 @@ services:
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
     volumes:
-      - ${ARRPATH}/prowlarr/config:/config
-      - ${DATAPATH}:/data
+      - /home/mi/docker/arr/prowlarr/config:/config
+      - /home/mi/minitank/data:/data
     restart: unless-stopped
-    env_file: stack.env
+    env_file: arr.env
     depends_on:
       - gluetun
     network_mode: service:gluetun
+    healthcheck:
+      test: curl -f http://localhost:9696/ping || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ─── sonarr ────────────────────────────────────────────────
   sonarr:
@@ -51,10 +56,15 @@ services:
     ports:
       - 8989:8989
     volumes:
-      - ${ARRPATH}/sonarr/config:/config
-      - ${DATAPATH}:/data
+      - /home/mi/docker/arr/sonarr/config:/config
+      - /home/mi/minitank/data:/data
     restart: unless-stopped
-    env_file: stack.env
+    env_file: arr.env
+    healthcheck:
+      test: curl -f http://localhost:8989/ping || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
       
   # ─── radarr ────────────────────────────────────────────────
   radarr:
@@ -65,10 +75,15 @@ services:
     ports:
       - 7878:7878
     volumes:
-      - ${ARRPATH}/radarr/config:/config
-      - ${DATAPATH}:/data
+      - /home/mi/docker/arr/radarr/config:/config
+      - /home/mi/minitank/data:/data
     restart: unless-stopped
-    env_file: stack.env
+    env_file: arr.env
+    healthcheck:
+      test: curl -f http://localhost:7878/ping || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
       
   # ─── homarr ────────────────────────────────────────────────
   homarr:
@@ -79,20 +94,25 @@ services:
     ports:
       - 7575:7575
     volumes:
-      - ${ARRPATH}/homarr/configs:/app/data/configs
-      - ${ARRPATH}/homarr/icons:/app/public/icons
-      - ${ARRPATH}/homarr/data:/data
+      - /home/mi/docker/arr/homarr/configs:/app/data/configs
+      - /home/mi/docker/arr/homarr/icons:/app/public/icons
+      - /home/mi/docker/arr/homarr/data:/data
     restart: unless-stopped
-    env_file: stack.env
+    env_file: arr.env
+    healthcheck:
+      test: wget --spider -q http://localhost:7575 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
       
   # ─── qBittorrent ───────────────────────────────────────────
   qbittorrent:
     image: linuxserver/qbittorrent:latest
     container_name: qbittorrent
     volumes:
-      - ${ARRPATH}/qbittorrent/config:/config
-      - ${DATAPATH}/downloads:/data/downloads
-    env_file: stack.env
+      - /home/mi/docker/arr/qbittorrent/config:/config
+      - /home/mi/minitank/data/downloads:/data/downloads
+    env_file: arr.env
     restart: unless-stopped
     depends_on:
       gluetun:
@@ -115,10 +135,15 @@ services:
     ports:
       - 6767:6767
     volumes:
-      - ${ARRPATH}/bazarr:/config
-      - ${DATAPATH}:/data
+      - /home/mi/docker/arr/bazarr:/config
+      - /home/mi/minitank/data:/data
     restart: unless-stopped
-    env_file: stack.env
+    env_file: arr.env
+    healthcheck:
+      test: curl -f http://localhost:6767 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
  # ─── Flaresolverr ────────────────────────────────────────────
   flaresolverr:
@@ -126,6 +151,11 @@ services:
     container_name: flaresolverr
     environment:
       - LOG_LEVEL=info
-    env_file: stack.env
+    env_file: arr.env
     restart: unless-stopped
     network_mode: service:gluetun
+    healthcheck:
+      test: python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8191/health')" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3

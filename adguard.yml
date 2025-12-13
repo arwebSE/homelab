@@ -2,6 +2,7 @@ services:
   adguardhome:
     image: adguard/adguardhome
     container_name: adguardhome
+    network_mode: host
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -11,8 +12,6 @@ services:
       - 84:80/tcp
       - 443:443/tcp
     volumes:
-      - ${DOCKER}/adguardhome/workdir:/opt/adguardhome/work
-      - ${DOCKER}/adguardhome/confdir:/opt/adguardhome/conf
+      - /home/mi/docker/adguardhome/workdir:/opt/adguardhome/work
+      - /home/mi/docker/adguardhome/confdir:/opt/adguardhome/conf
     restart: unless-stopped
-    network_mode: host
-    env_file: stack.env

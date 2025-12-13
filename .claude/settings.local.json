@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(ping:*)",
+      "Bash(curl:*)",
+      "Bash(nslookup:*)"
+    ]
+  }
+}

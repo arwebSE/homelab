@@ -5,9 +5,9 @@ services:
       ports:
         - "8081:80"
       volumes:
-        - ${HOMEPATH}:/srv             # root of library
-        - ${DOCKER}/filebrowser/data:/data   # File Browser user data
-        - ${DOCKER}/filebrowser/config:/config
-        - ${DOCKER}/filebrowser/db/filebrowser.db:/database/filebrowser.db
+        - /home/mi:/srv             # root of library
+        - /home/mi/docker/filebrowser/data:/data   # File Browser user data
+        - /home/mi/docker/filebrowser/config:/config
+        - /home/mi/docker/filebrowser/db/filebrowser.db:/database/filebrowser.db
       restart: unless-stopped
-      env_file: stack.env
+      env_file: files.env

@@ -5,8 +5,7 @@ services:
     restart: always
     ports:
       - "5678:5678"
-    env_file:
-      - stack.env
+    env_file: n8n.env
     environment:
       - N8N_HOST=localhost
       - N8N_PORT=5678
@@ -16,4 +15,4 @@ services:
       - DB_SQLITE_POOL_SIZE=5
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     volumes:
-      - ${DOCKER}/n8n:/home/node/.n8n
+      - /home/mi/docker/n8n:/home/node/.n8n

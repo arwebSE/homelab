@@ -3,22 +3,22 @@ services:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
     network_mode: host # recommended by Plex
-    env_file: stack.env
+    env_file: plex.env
     environment:
       - VERSION=docker
     ports:
       - 32400:32400
     volumes:
-      - ${DOCKER}/plex:/config
-      - ${TANK}:/data
+      - /home/mi/docker/plex:/config
+      - /home/mi/minitank/data:/data
     restart: unless-stopped
 
   overseerr:
     image: lscr.io/linuxserver/overseerr:latest
     container_name: overseerr
-    env_file: stack.env
+    env_file: plex.env
     volumes:
-      - ${DOCKER}/overseer/config:/config
+      - /home/mi/docker/overseer/config:/config
     ports:
       - 5055:5055
     restart: unless-stopped
