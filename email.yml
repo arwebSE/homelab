@@ -1,0 +1,10 @@
+services:
+  postfix:
+    image: boky/postfix:latest
+    container_name: postfix
+    restart: always
+    environment:
+      - maildomain=arweb.dev
+      - ALLOWED_SENDER_DOMAINS=arweb.dev
+    ports:
+      - "25:25"
